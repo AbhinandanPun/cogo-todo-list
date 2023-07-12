@@ -1,0 +1,103 @@
+body {
+    font-family: 'Ubuntu', sans-serif;
+    display: flex;
+    justify-self: center;
+    flex-direction: column;
+    background-color: #caf0f8;
+    /* margin:auto; */
+}
+
+.header {
+    background-color: #90e0ef;
+    color:#023e8a;
+    display:flex;
+    justify-content: space-around;
+    border-radius: 20px;
+}
+/* #023e8a
+#0077b6
+#90e0ef
+*/
+.container {
+    width:90%;
+    align-self: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.add-task {
+    position: relative;
+}
+.add-task-form {
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.add-task-button {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+input[type=text] {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    border: 2px solid #023e8a;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #fff;
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+  }
+
+  .button {
+    width:100%;
+    min-width: 10px;
+    background-color: #0077b6;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .added-task {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .task-item {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width:100%;
+    height: auto;
+    background-color: #edf6f9;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .task-button-container {
+    width:80%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .task-button {
+    width:15%;
+    background-color: #0077b6;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
