@@ -8,13 +8,12 @@ const doneTaskList = document.querySelector(".done-task")
     fetch('https://jsonplaceholder.typicode.com/todos')
     .then(response => response.json())
     .then(json => {
-        console.log(json[0]);
         for(i=0; i<json.length; i++) {
-            addTask(json[i].title, json[i].completed);
+            addTask(json[i].id, json[i].title, json[i].completed);
         }
     })
 
-  function addTask(taskInputText, taskSuccess=true) {
+  function addTask(id="", taskInputText, taskSuccess=false) {
     if(taskInputText) {
         const taskItem = document.createElement("div");
         taskItem.classList.add("task-item");
@@ -45,7 +44,10 @@ const doneTaskList = document.querySelector(".done-task")
 
         taskItem.appendChild(taskContent);
         taskItem.appendChild(taskButtonContainer);
-        if(taskSuccess) doneTaskList.appendChild(taskItem);
+        if(taskSuccess) {
+            done.textContent = "Undone";
+            doneTaskList.appendChild(taskItem);
+        }
         else taskList.appendChild(taskItem);
         taskInput.value = "";
     }
@@ -76,10 +78,10 @@ const doneTaskList = document.querySelector(".done-task")
   }
 addButton.addEventListener("click", function(){
     const taskInputText = taskInput.value;
-    addTask(taskInputText);
+    addTask("", taskInputText, false);
 });
 taskInput.addEventListener("keydown", function(event) {
     if(event.key == "Enter") {
-        addTask();
+        addTask("", taskInputText, false);
     }
 });
