@@ -17,7 +17,7 @@ const doneTaskList = document.querySelector(".done-task")
         const done = document.createElement("button");
         done.classList.add("task-button");
         done.textContent = "Done";
-        done.addEventListener("click", doneTask);
+        done.addEventListener("click", doneToggleTask);
         const edit = document.createElement("button");
         edit.classList.add("task-button");
         edit.textContent = "Edit";
@@ -41,9 +41,16 @@ const doneTaskList = document.querySelector(".done-task")
         taskInput.value = "";
     }
   }
-  function doneTask(event) {
+  function doneToggleTask(event) {
     deleteTask(event);
-    doneTaskList.appendChild(event.target.parentNode.parentNode);
+    if(event.target.innerHTML == "Done") {
+        event.target.innerHTML = "Undone";
+        doneTaskList.appendChild(event.target.parentNode.parentNode);
+    }
+    else {
+        event.target.innerHTML = "Done";
+        taskList.appendChild(event.target.parentNode.parentNode);
+    }
   }
   function editTask() {
     
