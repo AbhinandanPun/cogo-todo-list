@@ -36,13 +36,12 @@ function refreshAction() {
 /** 
  * UTILITY Functions
  * 
- *      initTaskMap() : initialize the Task Map from localstorage
+ *      initTaskInArray() : initialize the Task Map from localstorage
  *      updateLocalStorage() : to update the local storage
  *      removeAllTask() : to remove all the task for re-render
  *      renderFromTaskArray() : totally re-render the DOM from array
  *      renderTaskList() : create "task-item" element, append to "added-list" or "done-list" container
 */
-
     function renderFromTaskArray(){
         removeAllTask();
         // RENDER each of the task OBJECT in array
@@ -74,35 +73,6 @@ function refreshAction() {
                     <button class="task-button" onclick="deleteTask(event)">Delete</button>
                 </div>
             `
-            // const taskContent = document.createElement("div");
-            // taskContent.classList.add("task-content");
-            // const taskText = document.createElement("p");
-            // const taskButtonContainer = document.createElement("div");
-            // taskButtonContainer.classList.add("task-button-container");
-            // const done = document.createElement("button");
-            // done.classList.add("task-button");
-            // done.textContent = "Done";
-            // done.addEventListener("click", ToggleTask);
-            // const edit = document.createElement("button");
-            // edit.classList.add("task-button");
-            // edit.textContent = "Edit";
-            // edit.addEventListener("click", editTask);
-            // const del = document.createElement("button");
-            // del.classList.add("task-button");
-            // del.textContent = "Delete";
-            // del.addEventListener("click", deleteTask);
-
-            // // append the "content" and "buttons" to "task-item"
-            // taskText.textContent = task.title;
-            // taskContent.appendChild(taskText);
-            // taskButtonContainer.appendChild(done);
-            // taskButtonContainer.appendChild(edit);
-            // taskButtonContainer.appendChild(del);
-            // taskItem.appendChild(taskContent);
-            // taskItem.appendChild(taskButtonContainer);
-
-            // append to "added-task" if task is incomplete
-            // append to "done-task" if task is complete
             if(task.completed) {
                 doneTaskList.appendChild(taskItem);
             }
@@ -130,6 +100,7 @@ function refreshAction() {
  * 
  * ToggleTask changes "UNDONE" to "DONE" and vice-versa
  * EditTask changes the text of the task
+ * SaveItem save changes from EDIT TASK operation
  * DeleteTask deletes the task
  * 
 */
