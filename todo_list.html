@@ -9,23 +9,22 @@
         <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet"> 
         <link rel="stylesheet" href="styles.css">
     </head>
-    <body>
+    <body onload="refreshAction()">
         <div class="header">
             <div>
                 <h1>TO-DO LIST</h1>
-                <h6 style="position:absolute; right:30px; top:30px;">by Abhinandan Pun</h6>
             </div>
         </div>
         <div class="container">
             <div class="add-task">
                 <div class="add-task-form">
                     <input type="text" placeholder="add a new task here" class="task-input">
-                    <!-- <div class="add-task-button"> -->
                         <button class="button">Add</button>
-                        <!-- <div class="button" style="background-color: #001219;">Reset</div> -->
-                    <!-- </div> -->
                 </div>
             </div>
+            <!-- <div class="details">
+                Fetching data...
+            </div> -->
             <div class="added-task"></div>
             <div class="done-task"></div>
         </div>

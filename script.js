@@ -4,195 +4,226 @@ const container = document.querySelector(".container")
 let  addedTaskList = document.querySelector(".added-task")
 let  doneTaskList = document.querySelector(".done-task")
 
-const taskMap = new Map();
-let taskIdForAPI = 10000;
-let newIdForInput = 10500;
+let taskArray = [];
+let taskIdForAPI = 0;
 
-    fetch('https://jsonplaceholder.typicode.com/todos')
-    .then((response) => {
-        if(!response.ok) {
-            throw new Error('Data not received');
-        }
-        return response.json();
-    })
-    .then(json => {
-        for(i=0; i<10; i++) {
-            taskMap.set(taskIdForAPI,
-                {
-                "id": taskIdForAPI,
-                "title": json[i].title,
-                "completed": json[i].completed
-                }
-            );
-            taskIdForAPI += 1;
-        }
-        renderFromMap();
-    })
-    .catch(error => {
-        console.log("Error", error.message);
-    })
+// runs onload of the body, i.e. on refresh
+function refreshAction() {
+    // check if localstorage is empty or does not exist
+    if(localStorage.getItem("todos") && localStorage.getItem("todos").length !== 2) {
+        taskArray = JSON.parse(localStorage.getItem("todos"));
+        renderFromTaskArray();
+    }
+    else {
+        fetch('https://jsonplaceholder.typicode.com/todos')
+        .then((response) => {
+            if(!response.ok) {
+                throw new Error('Data not received');
+            }
+            return response.json();
+        })
+        .then(data => {        
+            taskArray = data;
+            localStorage.setItem("todos", JSON.stringify(data));
+            renderFromTaskArray();
+        })
+        .catch(error => {
+            console.log("Error", error.message);
+        })
+    }
+}
 
+/** 
+ * UTILITY Functions
+ * 
+ *      initTaskMap() : initialize the Task Map from localstorage
+ *      updateLocalStorage() : to update the local storage
+ *      removeAllTask() : to remove all the task for re-render
+ *      renderFromTaskArray() : totally re-render the DOM from array
+ *      renderTaskList() : create "task-item" element, append to "added-list" or "done-list" container
+*/
 
-//  FUNCTION RenderFromMap
-//  remove the child, added new empty ones and render the tasks
-    function renderFromMap(){
+    function renderFromTaskArray(){
         removeAllTask();
-        // RENDER each of the task OBJECT in map
-
-        console.log(taskMap);
-        taskMap.forEach(task => {
+        // RENDER each of the task OBJECT in array
+        taskArray.forEach(task => {
+            taskIdForAPI = Math.max(taskIdForAPI, task.id);
             renderTaskList(task);
         });
     }
 
-// FUNCTION RemoveAllTask
-// to remove all the task for re-render
     function removeAllTask(){
-        // remove the child "added-task", "done-task" from "container"
-        container.removeChild(addedTaskList);
-        container.removeChild(doneTaskList);
-                
-        // add the empty removed child in the DOM
-        added = document.createElement("div");
-        added.classList.add("added-task");
-        done = document.createElement("div");
-        done.classList.add("done-task");
-        container.appendChild(added);
-        container.appendChild(done);
-        
-        // reinitialize the querySelector
-        addedTaskList = document.querySelector(".added-task")
-        doneTaskList = document.querySelector(".done-task")
+        addedTaskList.innerHTML = "";
+        doneTaskList.innerHTML = "";
     }
 
-// FUNCTION RenderTaskList
-// create "task-item" element, append to "added" or "done" container
-  function renderTaskList(task) {
-    // check empty task OBJECT
-    if(Object.keys(task).length !== 0) {
+    function renderTaskList(task) {
+        // check empty task OBJECT
+        if(Object.keys(task).length !== 0) {
+            // CREATE the "task-item" element
+            const taskItem = document.createElement("div");
+            taskItem.classList.add("task-item");
+            taskItem.setAttribute("id", task.id)
+            taskItem.innerHTML = `
+                <div class="task-content">
+                    <p>${task.title}</p>
+                </div>
+                <div class="task-button-container">
+                    <button class="task-button" onclick="toggleTask(event)">${(task.completed ? "Undone" : "Done")}</button>
+                    <button class="task-button" onclick="editTask(event)">Edit</button>
+                    <button class="task-button" onclick="deleteTask(event)">Delete</button>
+                </div>
+            `
+            // const taskContent = document.createElement("div");
+            // taskContent.classList.add("task-content");
+            // const taskText = document.createElement("p");
+            // const taskButtonContainer = document.createElement("div");
+            // taskButtonContainer.classList.add("task-button-container");
+            // const done = document.createElement("button");
+            // done.classList.add("task-button");
+            // done.textContent = "Done";
+            // done.addEventListener("click", ToggleTask);
+            // const edit = document.createElement("button");
+            // edit.classList.add("task-button");
+            // edit.textContent = "Edit";
+            // edit.addEventListener("click", editTask);
+            // const del = document.createElement("button");
+            // del.classList.add("task-button");
+            // del.textContent = "Delete";
+            // del.addEventListener("click", deleteTask);
 
-        // CREATE the "task-item" element
-        const taskItem = document.createElement("div");
-        taskItem.classList.add("task-item");
-        taskItem.setAttribute("id", task.id)
-        const taskContent = document.createElement("div");
-        taskContent.classList.add("task-content");
-        const taskText = document.createElement("p");
-        const taskButtonContainer = document.createElement("div");
-        taskButtonContainer.classList.add("task-button-container");
-        const done = document.createElement("button");
-        done.classList.add("task-button");
-        done.textContent = "Done";
-        done.addEventListener("click", ToggleTask);
-        const edit = document.createElement("button");
-        edit.classList.add("task-button");
-        edit.textContent = "Edit";
-        edit.addEventListener("click", editTask);
-        const del = document.createElement("button");
-        del.classList.add("task-button");
-        del.textContent = "Delete";
-        del.addEventListener("click", deleteTask);
+            // // append the "content" and "buttons" to "task-item"
+            // taskText.textContent = task.title;
+            // taskContent.appendChild(taskText);
+            // taskButtonContainer.appendChild(done);
+            // taskButtonContainer.appendChild(edit);
+            // taskButtonContainer.appendChild(del);
+            // taskItem.appendChild(taskContent);
+            // taskItem.appendChild(taskButtonContainer);
 
-        // append the "content" and "buttons" to "task-item"
-        taskText.textContent = task.title;
-        taskContent.appendChild(taskText);
+            // append to "added-task" if task is incomplete
+            // append to "done-task" if task is complete
+            if(task.completed) {
+                doneTaskList.appendChild(taskItem);
+            }
+            else {
+                addedTaskList.appendChild(taskItem);
+            }
+        }
+    }
 
-        taskButtonContainer.appendChild(done);
-        taskButtonContainer.appendChild(edit);
-        taskButtonContainer.appendChild(del);
+    function addTaskInArray() {
+        const taskInputText = taskInput.value;
+        taskArray.push({
+            "id": ++taskIdForAPI,
+            "title": taskInputText,
+            "completed": false
+        });
+    }
 
-        taskItem.appendChild(taskContent);
-        taskItem.appendChild(taskButtonContainer);
+    function updateLocalStorage() {
+        localStorage.setItem("todos", JSON.stringify(taskArray));
+    }
 
-        // append to "added-task" if task is incomplete
-        // append to "done-task" if task is complete
-        if(task.completed) {
-            done.textContent = "Undone";
-            doneTaskList.appendChild(taskItem);
+/** 
+ * EVENTLISTENERs
+ * 
+ * ToggleTask changes "UNDONE" to "DONE" and vice-versa
+ * EditTask changes the text of the task
+ * DeleteTask deletes the task
+ * 
+*/
+    function toggleTask(event) {
+        const taskItem = event.target.parentNode.parentNode;        
+        const taskID = parseInt(taskItem.id);
+
+        const task = taskArray.find(task => task.id === taskID);
+        const completed = task.completed;
+        task.completed = !task.completed;
+
+        updateLocalStorage();
+
+        // switching between DONE and UNDONE task without total DOM RE-RENDER
+        if(completed == false) {
+            addedTaskList.removeChild(taskItem);
+            event.target.innerHTML = "Undone";
+            doneTaskList.appendChild(event.target.parentNode.parentNode);
         }
         else {
-            addedTaskList.appendChild(taskItem);
+            doneTaskList.removeChild(taskItem);
+            event.target.innerHTML = "Done";
+            addedTaskList.appendChild(event.target.parentNode.parentNode);
         }
     }
-  }
 
-
-//   FUNCTION ToggleTaskCompletion
-//   Updates the map, re-render the specific task-element
-  function ToggleTask(event) {
-    const taskItem = event.target.parentNode.parentNode;
-    taskObj = taskMap.get(parseInt(taskItem.id));
-
-    // DOM manipulation
-    // switching between DONE and UNDONE task without RE-RENDER
-    if(taskObj.completed == false) {
-        addedTaskList.removeChild(taskItem);
-        event.target.innerHTML = "Undone";
-        doneTaskList.appendChild(event.target.parentNode.parentNode);
-    }
-    else {
-        doneTaskList.removeChild(taskItem);
-        event.target.innerHTML = "Done";
-        addedTaskList.appendChild(event.target.parentNode.parentNode);
+    function editTask(event) {
+        taskItem = event.target.parentNode.parentNode;
+        taskContent = taskItem.querySelector('.task-content');
+        // to avoid multiple edit render
+        if(taskContent.childElementCount < 2){
+            todoText = taskContent.querySelector('p');
+            const editTextbox = document.createElement('input');
+            editTextbox.type = 'text';
+            editTextbox.value = todoText.textContent;
+    
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.addEventListener("click", saveItem);
+            taskContent.replaceChild(editTextbox, todoText);
+            taskContent.appendChild(saveButton);
+        }
     }
 
-    // MAP manipulation
-    // switching the "completed" to true and false;
-    taskMap.set(taskObj.id,{
-        "id": taskObj.id,
-        "title": taskObj.title,
-        "completed": !taskObj.completed
-    });
-  }
+    function saveItem(event) {
+        taskItem = event.target.parentNode.parentNode;
+        taskID = parseInt(taskItem.id);
+        taskContent = taskItem.querySelector('.task-content');
+        taskEditText = taskContent.querySelector('input').value;
+        const task = taskArray.find(task => task.id === taskID);
+        task.title = taskEditText;
 
+        updateLocalStorage();
 
+        const taskText = document.createElement("p");
+        taskText.textContent = taskEditText;
+        taskContent.innerHTML = "";
+        taskContent.appendChild(taskText);
 
-  function editTask() {
-  }
+      }
 
+    function deleteTask(event) {
+        const taskItem = event.target.parentNode.parentNode;
+        const taskID = parseInt(taskItem.id);
 
-  
-// FUNCTION deleteTask
-// deletes the element from MAP and RE-RENDERS the dom
-  function deleteTask(event) {
-    const taskItem = event.target.parentNode.parentNode;
-    taskMap.delete(parseInt(taskItem.id));
-    renderFromMap();
-    // code to avoid RE-RENDER
-    // const container = event.target.parentNode.parentNode.parentNode.classList[0];
-    // if(container=="added-task") {
-    //     taskList.removeChild(taskItem);
-    // }
-    // else{
-    //     doneTaskList.removeChild(taskItem);
-    // }
-  }
+        taskArray = taskArray.filter(task => task.id !== taskID);
+        updateLocalStorage();
 
-// FUNCTION addTaskInMap()
-// adds new task from input form to taskMap
-function addTaskinMap() {
-    const taskInputText = taskInput.value;
-    taskMap.set(newIdForInput,{
-        "id": newIdForInput,
-        "title": taskInputText,
-        "completed": false
-    });
-    newIdForInput += 1;
-    renderFromMap();
-    taskInput.value = "";
-}
+        if(taskItem.parentNode.classList[0]=="added-task") {
+            addedTaskList.removeChild(taskItem);
+        }
+        else{
+            doneTaskList.removeChild(taskItem);
+        }
+        //using total RE-RENDER of DOM
+        //const taskItem = event.target.parentNode.parentNode;
+        // taskMap.delete(parseInt(taskItem.id));
+        // renderFromMap();
+    }
 
-// EVENT LISTENER
 // handles the click action on the "Add" button.
-addButton.addEventListener("click", function(){
-    addTaskinMap();
-});
+    addButton.addEventListener("click", function(){
+        addTaskInArray();
+        updateLocalStorage();
+        renderTaskList(taskArray[taskArray.length-1]);
+        taskInput.value = ""; 
+    });
 
-
-// EVENT LISTENER
 // handles the "ENTER" key stroke on the input form.
-taskInput.addEventListener("keydown", function(event) {
-    if(event.key == "Enter") {
-        addTaskinMap();
-    }
-});
+    taskInput.addEventListener("keydown", function(event) {
+        if(event.key == "Enter") {
+            addTaskInArray();
+            updateLocalStorage();
+            renderTaskList(taskArray[taskArray.length-1]);
+            taskInput.value = ""; 
+        }
+    });
