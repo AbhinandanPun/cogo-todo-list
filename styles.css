@@ -105,6 +105,14 @@ input[type=text] {
     align-items: center;
     box-shadow: 5px 5px #888888;
   }
+  .task-content {
+    display: flex;
+    flex-direction: row;
+  }
+  .task-content p{
+    word-break: break-all;
+    white-space: normal;
+  }
   .task-button-container {
     width:80%;
     display: flex;

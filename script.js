@@ -46,7 +46,7 @@ function refreshAction() {
         removeAllTask();
         // RENDER each of the task OBJECT in array
         taskArray.forEach(task => {
-            taskIdForAPI = Math.max(taskIdForAPI, task.id);
+            taskIdForAPI = Math.max(taskIdForAPI, task.id); // get current maxID
             renderTaskList(task);
         });
     }
@@ -62,7 +62,7 @@ function refreshAction() {
             // CREATE the "task-item" element
             const taskItem = document.createElement("div");
             taskItem.classList.add("task-item");
-            taskItem.setAttribute("id", task.id)
+            taskItem.setAttribute("id", task.id);
             taskItem.innerHTML = `
                 <div class="task-content">
                     <p>${task.title}</p>
@@ -70,9 +70,9 @@ function refreshAction() {
                 <div class="task-button-container">
                     <button class="task-button" onclick="toggleTask(event)">${(task.completed ? "Undone" : "Done")}</button>
                     <button class="task-button" onclick="editTask(event)">Edit</button>
-                    <button class="task-button" onclick="deleteTask(event)">Delete</button>
+                    <button class="task-button" style="background-color:#9e2a2b" onclick="deleteTask(event)">Delete</button>
                 </div>
-            `
+            `;
             if(task.completed) {
                 doneTaskList.appendChild(taskItem);
             }
@@ -102,6 +102,8 @@ function refreshAction() {
  * EditTask changes the text of the task
  * SaveItem save changes from EDIT TASK operation
  * DeleteTask deletes the task
+ * 
+ * The edit and add function handle empty string input
  * 
 */
     function toggleTask(event) {
@@ -133,15 +135,10 @@ function refreshAction() {
         // to avoid multiple edit render
         if(taskContent.childElementCount < 2){
             todoText = taskContent.querySelector('p');
-            const editTextbox = document.createElement('input');
-            editTextbox.type = 'text';
-            editTextbox.value = todoText.textContent;
-    
-            const saveButton = document.createElement('button');
-            saveButton.textContent = 'Save';
-            saveButton.addEventListener("click", saveItem);
-            taskContent.replaceChild(editTextbox, todoText);
-            taskContent.appendChild(saveButton);
+            taskContent.innerHTML = `
+                <input type="text" value="${(todoText.textContent)}">
+                <button class="task-button" style="background-color:#e09f3e;" onclick="saveItem(event)">Save</button>
+            `;
         }
     }
 
@@ -150,17 +147,18 @@ function refreshAction() {
         taskID = parseInt(taskItem.id);
         taskContent = taskItem.querySelector('.task-content');
         taskEditText = taskContent.querySelector('input').value;
-        const task = taskArray.find(task => task.id === taskID);
-        task.title = taskEditText;
-
-        updateLocalStorage();
-
-        const taskText = document.createElement("p");
-        taskText.textContent = taskEditText;
-        taskContent.innerHTML = "";
-        taskContent.appendChild(taskText);
-
-      }
+        if(taskEditText!=="") {
+            const task = taskArray.find(task => task.id === taskID);
+            task.title = taskEditText;
+    
+            updateLocalStorage();
+    
+            const taskText = document.createElement("p");
+            taskText.textContent = taskEditText;
+            taskContent.innerHTML = "";
+            taskContent.appendChild(taskText);
+        }
+    }
 
     function deleteTask(event) {
         const taskItem = event.target.parentNode.parentNode;
@@ -183,15 +181,17 @@ function refreshAction() {
 
 // handles the click action on the "Add" button.
     addButton.addEventListener("click", function(){
-        addTaskInArray();
-        updateLocalStorage();
-        renderTaskList(taskArray[taskArray.length-1]);
-        taskInput.value = ""; 
+        if(taskInput.value!=="") {
+            addTaskInArray();
+            updateLocalStorage();
+            renderTaskList(taskArray[taskArray.length-1]);
+            taskInput.value = ""; 
+        }
     });
 
 // handles the "ENTER" key stroke on the input form.
     taskInput.addEventListener("keydown", function(event) {
-        if(event.key == "Enter") {
+        if(event.key == "Enter" && taskInput.value!=="") {
             addTaskInArray();
             updateLocalStorage();
             renderTaskList(taskArray[taskArray.length-1]);
