@@ -65,6 +65,15 @@
                 <option value="low">low</option>
                 </select>
             </div>
+            
+            <div class="form-row-50">
+                <div class="form-label">Reminder:</div>
+                <select class="form-input-1 reminder">
+                <option value="daily">once a day</option>
+                <option value="hourly">once an hour</option>
+                <option value="byminute">once every min</option>
+                </select>
+            </div>
             </div>
         
             <!-- Fourth Row: Add Button -->
@@ -98,7 +107,10 @@
         
             <!-- Fourth 20%: Dropdown Input for Single Select Radiobutton -->
             <div class="filter-button">
-                <button class="filter-button" id="openFilterModalBtn">Open Filter Form</button>
+                <button class="filter-button" id="openFilterModalBtn">Filter</button>
+            </div>
+            <div class="back-log-button">
+                <button class="back-log-button" id="showBackLogBtn">Backlogs</button>
             </div>
         </div>
         <div id="filter-modal" class="modal">
@@ -107,7 +119,7 @@
               <span class="close">&times;</span>
           
               <!-- Form content -->
-              <form id="myForm">
+              <form id="filter-form">
                 <h2>Filter solo or with combinations</h2>
                 <h4>Choose combinations of multiple options in each category to filter</h4>
                 <!-- Your form fields here -->
@@ -148,8 +160,13 @@
                 <div class="filter-button"><button  class="filter-button" id="filterSubmitBtn" type="submit">Filter</button></div>
               </form>
             </div>
-          </div>
-          
+        </div>
+        <div id="reminder-modal" class="reminder-modal">
+            <div class="task-to-reminded">
+                <span class="close"></span>
+            </div>
+        </div>
+        <div class="activity-board"></div>
         <div class="undone-task"></div>
         <div class="done-task"></div>
     </div>
