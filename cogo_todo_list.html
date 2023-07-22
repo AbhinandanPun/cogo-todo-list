@@ -13,7 +13,7 @@
 <body onload="refreshAction()">
     <div class="header">
         <div>
-            <h1>TO-DO LIST</h1>
+            <h2 style="margin:auto;">TO-DO LIST</h2>
         </div>
     </div>
     <div class="main-container">  
@@ -85,7 +85,7 @@
         
             <!-- Third 20%: Dropdown Input for Single Select Radiobutton -->
             <div class="form-dropdown">
-            <legend>sort by:</legend>
+            <div>sort by:</div>
               <select class="form-input-2 sort-by">
                 <option value="DueDateNear">duedate (near to far)</option>
                 <option value="DueDateFar">duedate (far to near)</option>
@@ -97,16 +97,59 @@
             </div>
         
             <!-- Fourth 20%: Dropdown Input for Single Select Radiobutton -->
-            <div class="form-dropdown">
-            <legend>filter by:</legend>
-              <select class="form-input-2">
-                <option value="Tags"><div></div></option>
-                <option value="DueDate">Due Date</option>
-                <option value="Priority">Priority</option>
-                <option value="Category">Category</option>
-              </select>
+            <div class="filter-button">
+                <button class="filter-button" id="openFilterModalBtn">Open Filter Form</button>
             </div>
         </div>
+        <div id="filter-modal" class="modal">
+            <div class="modal-content">
+              <!-- Close button -->
+              <span class="close">&times;</span>
+          
+              <!-- Form content -->
+              <form id="myForm">
+                <h2>Filter solo or with combinations</h2>
+                <h4>Choose combinations of multiple options in each category to filter</h4>
+                <!-- Your form fields here -->
+                <div style="margin-top:1rem; margin-bottom:1rem;" class="form-row-50">
+                    <div class="checkbox-container">
+                    <label>Tags:</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-tags" value="Home improvement">Home improvement</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-tags" value="Errands">Errands</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-tags" value="Fitness">Fitness</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-tags" value="Travel">Travel</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-tags" value="Meeting">Meeting</label>
+                    </div>
+                </div>
+                <div style="margin-top:1rem; margin-bottom:1rem;" class="form-row-50">
+                    <div class="checkbox-container">
+                    <label>Priority:</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-priority" value="high">high</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-priority" value="medium">medium</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-priority" value="low">low</label>
+                    </div>
+                </div>
+                <div style="margin-top:1rem; margin-bottom:1rem;" class="form-row-50">
+                    <div class="checkbox-container">
+                    <label>Categories:</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-category" value="Personal">Personal</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-category" value="Work">Work</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-category" value="Shopping">Shopping</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-category" value="Health">Health</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input-category" value="Home">Home</label>
+                    </div>
+                </div>
+                <div class="form-row-50">
+                    <div class="form-label">From:</div>
+                    <input type="date" class="form-input-1 from-date">
+                    <div class="form-label">To:</div>
+                    <input type="date" class="form-input-1 to-date">
+                </div>
+                <div class="filter-button"><button  class="filter-button" id="filterSubmitBtn" type="submit">Filter</button></div>
+              </form>
+            </div>
+          </div>
+          
         <div class="undone-task"></div>
         <div class="done-task"></div>
     </div>

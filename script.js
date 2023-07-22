@@ -147,15 +147,7 @@ function editTask(event) {
 }
 
 function CancelEditItem(event) {
-    taskItem = event.target.parentNode.parentNode;
-    const task = taskArray.find(task => task.id === taskID);
-            taskItem.innerHTML = `
-                        <div class="task-details-title">${(task.title)}</div>
-                        <div class="task-details-info task-details-tags">Tags: ${(task.tags)}</div>
-                        <div class="task-details-info task-details-category">Category: ${(task.category)}</div>
-                        <div class="task-details-info task-details-date">Due Date: ${(task.dueDate)}</div>
-                        <div class="task-details-info task-details-priority">Priority: ${(task.priority)}</div>
-                `;
+    renderFromTaskArray(taskArray);
 }
     function saveItem(event) {
         taskItem = event.target.parentNode.parentNode.parentNode;
@@ -181,20 +173,7 @@ function CancelEditItem(event) {
             task.category = category;
             task.dueDate = dueDate;
             updateLocalStorage();
-            taskItem.innerHTML = `
-                    <div class="task-details">
-                        <div class="task-details-title">${(task.title)}</div>
-                        <div class="task-details-info task-details-tags">Tags: ${(task.tags)}</div>
-                        <div class="task-details-info task-details-category">Category: ${(task.category)}</div>
-                        <div class="task-details-info task-details-date">Due Date: ${(task.dueDate)}</div>
-                        <div class="task-details-info task-details-priority">Priority: ${(task.priority)}</div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="action-button edit-button" onclick="editTask(event)">Edit</button>
-                        <button class="action-button"  onclick="toggleTask(event)">${(task.completed ? "Undone" : "Done")}</button>
-                        <button class="action-button delete-button"  onclick="deleteTask(event)">Delete</button>
-                    </div>
-                `;
+            renderFromTaskArray(taskArray);
         }
     }
 
@@ -287,17 +266,84 @@ function sortPriorityHighToLow(objA, objB){
     return priority2 - priority1;
 }
 
-// let fliterClicked = false;
-// sortBy.addEventListener('mousedown', function() {
-//     fliterClicked = true;
-// });
-// sortBy.addEventListener('mouseup', function() {
-//   if (!fliterClicked) {
-//     const selectedValue = sortBy.value;
-//     console.log('Option clicked:', selectedValue);
-//   }
-//   fliterClicked = true;
-// });
-// sortBy.addEventListener('click', function() {
-//     fliterClicked = false;
-// });
+
+
+const modal = document.getElementById('filter-modal');
+const openModalBtn = document.getElementById('openFilterModalBtn');
+const closeBtn = modal.querySelector('.close');
+
+// Function to open the modal
+function openModal() {
+  modal.style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+  modal.style.display = 'none';
+}
+
+// Event listeners to trigger modal open and close
+openModalBtn.addEventListener('click', openModal);
+closeBtn.addEventListener('click', closeModal);
+
+// Optionally, you can close the modal when the user clicks outside of it
+window.addEventListener('click', (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
+function handleCheckBoxesForFilter(className) {
+    let checkboxes = document.querySelectorAll(className);
+    let selected = [];
+    checkboxes.forEach(function(checkbox) {
+    if (checkbox.checked) {
+        selected.push(checkbox.value);
+        }
+    });
+    return selected;
+}
+
+// Form submit handler
+const myForm = document.getElementById('myForm');
+myForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+  // Process form data here or submit the form to the server
+    const selectedTags = handleCheckBoxesForFilter(".checkbox-input-tags");
+    const selectedPriorities = handleCheckBoxesForFilter(".checkbox-input-priority");
+    const selectedCategories = handleCheckBoxesForFilter(".checkbox-input-category");
+    const fromDate = document.querySelector(".from-date").value
+    const toDate = document.querySelector(".to-date").value;
+    console.log(fromDate);
+    console.log(toDate);
+    let tempArray = taskArray.filter((task) => {
+        let a = b = c = d = true;
+        taskTags = task.tags;
+        taskCategory = task.category;
+        taskPriority = task.priority;
+        taskDate = new Date(task.dueDate);
+        if((toDate!="" && fromDate!="" && (taskDate<new Date(fromDate) || taskDate>new Date(toDate)))
+            || (toDate!="" && taskDate>new Date(toDate))
+            || (fromDate!="" && taskDate<new Date(fromDate))) a = false;
+        countTags = 0;
+        selectedTags.forEach(element => {
+            if(taskTags.includes(element)) {
+                countTags++;
+            }
+        });
+        if(countTags!==selectedTags.length) b=false;
+
+        if(selectedCategories.length && !selectedCategories.includes(taskCategory)) c = false;
+        if(selectedPriorities.length && !selectedPriorities.includes(taskPriority)) d = false;
+        console.log(a)
+        console.log(b)
+        console.log(c)
+        console.log(d)
+        console.log("")
+        return (a && b && c && d);
+    });
+    
+    renderFromTaskArray(tempArray);
+    closeModal();
+
+});
