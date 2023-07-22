@@ -3,7 +3,8 @@
     <head>
         <title>
             todo list by abhinandan
-        </title>  
+        </title>          
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet"> 
@@ -19,13 +20,15 @@
             <div class="add-task">
                 <div class="add-task-form">
                     <input type="text" placeholder="add a new task here" class="task-input">
-                        <button class="button">Add</button>
+                    <button class="button">Add</button>
                 </div>
             </div>
             <!-- <div class="details">
                 Fetching data...
             </div> -->
+            <div style="display: flex;justify-content: center;" ><h4>Complete these tasks</h4></div>
             <div class="added-task"></div>
+            <div style="display: flex;justify-content: center;" ><h4>Already done task</h4></div>
             <div class="done-task"></div>
         </div>
         <script src="script.js"></script>

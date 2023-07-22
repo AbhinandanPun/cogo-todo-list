@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        todo list by abhinandan
+    </title>          
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body onload="refreshAction()">
+    <div class="header">
+        <div>
+            <h1>TO-DO LIST</h1>
+        </div>
+    </div>
+    <div class="main-container">  
+        <div class="form-container-1">
+            <!-- First Row: Input for Text Area -->
+            <div class="form-row form-row-100">
+                <div class="form-label">Task Description</div>
+                <textarea class="form-input-1 task-title" rows="4"></textarea>
+            </div>
+        
+            <!-- Second Row: Checkboxes for Multiple Select -->
+            <div class="form-row">
+                <div class="form-row-50">
+                    <div class="form-label">Assign Tags:</div>
+                    <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input" value="Home improvement">Home improvement</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input" value="Errands">Errands</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input" value="Fitness">Fitness</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input" value="Travel">Travel</label>
+                    <label class="checkbox-label"><input type="checkbox" class="checkbox-input" value="Meeting">Meeting</label>
+                    </div>
+                </div>
+            
+                <!-- Second Row: Dropdown Input for Single Select Radiobutton -->
+                <div class="form-row-50">
+                    <div class="form-label">Assign Category:</div>
+                    <select class="form-input-1 category">
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Health">Health</option>
+                    <option value="Home">Home</option>
+                    </select>
+                </div>
+            </div>
+        
+            <!-- Third Row: Date Selector and Dropdown Input for Single Select Radiobutton -->
+            <div class="form-row">
+            <div class="form-row-50">
+                <div class="form-label">Date Selector:</div>
+                <input type="date" class="form-input-1 due-date">
+            </div>
+        
+            <div class="form-row-50">
+                <div class="form-label">Priority:</div>
+                <select class="form-input-1 priority">
+                <option value="high">high</option>
+                <option value="medium">medium</option>
+                <option value="low">low</option>
+                </select>
+            </div>
+            </div>
+        
+            <!-- Fourth Row: Add Button -->
+            <div class="form-row form-row-100">
+            <button class="add-button">Add</button>
+            </div>
+        </div>
+        <div class="form-container-2">
+            <!-- First 40%: Input Area -->
+            <div class="input-area">
+              <input type="text" class="form-input-2" placeholder="Enter text here">
+            </div>
+        
+            <!-- Second 20%: Search Button -->
+            <div class="search-button">
+              <button class="search-button">Search</button>
+            </div>
+        
+            <!-- Third 20%: Dropdown Input for Single Select Radiobutton -->
+            <div class="form-dropdown">
+            <legend>sort by:</legend>
+              <select class="form-input-2 sort-by">
+                <option value="DueDateNear">duedate (near to far)</option>
+                <option value="DueDateFar">duedate (far to near)</option>
+                <option value="PriorityLow">Priority (low to high)</option>
+                <option value="PriorityHigh">Priority (high to low)</option>
+                <!-- <option value="CategoryAsc">Category (ascending)</option>
+                <option value="CategoryDesc">Category (descending)</option> -->
+              </select>
+            </div>
+        
+            <!-- Fourth 20%: Dropdown Input for Single Select Radiobutton -->
+            <div class="form-dropdown">
+            <legend>filter by:</legend>
+              <select class="form-input-2">
+                <option value="Tags"><div></div></option>
+                <option value="DueDate">Due Date</option>
+                <option value="Priority">Priority</option>
+                <option value="Category">Category</option>
+              </select>
+            </div>
+        </div>
+        <div class="undone-task"></div>
+        <div class="done-task"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
