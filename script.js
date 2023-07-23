@@ -643,7 +643,6 @@ function handleCheckBoxesForFilter(className) {
 
 
 // *********************  This section handles the reminder feature
-
 const reminderModal = document.getElementById('reminder-modal');
 function openReminderModal() {
     reminderModal.style.display = 'block';
@@ -683,10 +682,10 @@ function taskReminder() {
         }
     });
 }
-const everyMin = setInterval(taskReminder, 600000);
+const everyMin = setInterval(taskReminder, 60000);
 
 
-
+// *********************  This section handles the search feature
 const searchTextInput = document.getElementById('search-text');
 function handleInputEvent(event) {
     const typedText = event.target.value;
@@ -695,15 +694,15 @@ function handleInputEvent(event) {
     renderTasksFromArray(tempTaskArray);
   }
   
-  // Add the event listener to the text input
+// Add the event listener to the seach text input
 searchTextInput.addEventListener('input', handleInputEvent);
 
 function searchTaskArray(searchText) {
     searchText = searchText.toLowerCase();
-    console.log(searchText)
+
+    // if any task title, tags or subtask title statisfy
     let tempArray = taskArray.filter((task) => {
-        console.log(task.title.toLowerCase())
-        if(task.title.toLowerCase().includes(searchText)) return true;
+        if(task.title.toLowerCase().includes(searchText)) return true; 
         
         let subtask = task.subtask;
         let matchingSubTask = subtask.filter((subTask) => {
