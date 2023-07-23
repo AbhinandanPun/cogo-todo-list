@@ -219,6 +219,7 @@ body {
   max-height: 200px;
   display:flex;
   flex-direction: column-reverse;
+  margin-top:10px;
 }
 
 

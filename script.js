@@ -13,10 +13,10 @@ let taskID = -1;
 let edit = true; // to allow only one edit operation anywhere in the list
 
 // **************** On Refresh of the page
-function refreshAction() {
+function checkLocalStorageForData() {
     if(localStorage.getItem("todos") && localStorage.getItem("todos").length !== 2) { // localstorage when all task deleted ==> []
         taskArray = JSON.parse(localStorage.getItem("todos"));
-        renderFromTaskArray(taskArray);
+        renderTasksFromArray(taskArray);
     }
     if(localStorage.getItem("activity") && localStorage.getItem("activity").length !== 2) {
         activityArray = JSON.parse(localStorage.getItem("activity"));
@@ -37,7 +37,7 @@ function renderActivities(activityArray) {
 }
 
 // **************** Update the activites in LOCAL STORAGE
-function  updateActivity() {
+function  updateActivityInLocalStorage() {
     localStorage.setItem("activity", JSON.stringify(activityArray));
 }
 
@@ -47,24 +47,24 @@ function updateTasksInLocalStorage() {
 }
 
 // **************** render all non back logged tasks
-function renderFromTaskArray(taskArray){
-    removeAllTask(); // remove inner html
+function renderTasksFromArray(taskArray){
+    removeAllTaskFromDOM(); // remove inner html
     taskArray.forEach(task => {
         taskID = Math.max(taskID, task.id);
         let taskDueDate = new Date(task.dueDate);
         let currentDate = new Date();
-        if(currentDate<=taskDueDate) renderTaskList(task);
+        if(currentDate<=taskDueDate) renderSingleTask(task);
     });
 }
 
 // **************** remove inner html
-function removeAllTask(){
+function removeAllTaskFromDOM(){
     unDoneTaskList.innerHTML = "";
     doneTaskList.innerHTML = "";
 }
 
 // **************** render each of the task
-function renderTaskList(task) {
+function renderSingleTask(task) {
     if(Object.keys(task).length !== 0) { // should be non empty
         const taskItem = document.createElement("div");
         taskItem.classList.add("task-item");
@@ -93,14 +93,14 @@ function renderTaskList(task) {
 
         if(Object.keys(task.subtask).length!==0){ // for subtask
             task.subtask.forEach(st => {
-                renderSubTaskList(task.id, st);
+                renderSingleSubTask(task.id, st);
             });
         }
     }
 }
 
 // **************** render each of the subtask
-function renderSubTaskList(taskID, subTaskDetails) {
+function renderSingleSubTask(taskID, subTaskDetails) {
     taskItem = document.getElementById(taskID);
     const subtask = document.createElement("div");
     subtask.classList.add("sub-task-item");
@@ -161,10 +161,10 @@ addTaskButton.addEventListener("click", function(event) {
                             "with title: " + textAreaValue.value + " <br> " +
                             "with due date: " + dueDate + " <br> " + 
                             "and priority: " + priority + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
 
         updateTasksInLocalStorage();
-        renderFromTaskArray(taskArray)
+        renderTasksFromArray(taskArray)
         textAreaValue.value = "";
     }
 });
@@ -177,7 +177,7 @@ function deleteTask(event) {
     const currentDate = (new Date()).toString(); // message for the activity
     task = taskArray.find(task => task.id === taskID);
     activityArray.push("Main Task with title " + task.title + " deleted on " + currentDate + " <br> ");
-    updateActivity();
+    updateActivityInLocalStorage();
 
     taskArray = taskArray.filter(task => task.id !== taskID);
     updateTasksInLocalStorage();
@@ -211,7 +211,7 @@ function toggleTask(event) {
 
     const currentDate = (new Date()).toString(); // message for the activity
     activityArray.push("Main Task with title " + task.title + status + " on " + currentDate + " <br> ");
-    updateActivity();
+    updateActivityInLocalStorage();
 }
 
 // ******** This button opens a prefilled edit form for a TASK
@@ -265,8 +265,8 @@ function editTask(event) {
             </div>
             <input type="date" class="edit-due-date" value="${(todoDueDate)}">
             <div style="display:flex; justify-content:center; ">
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveItem(event)">Save</button>
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditItem(event)">Cancel</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditTask(event)">Save</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
             </div>
         `;
     
@@ -275,23 +275,23 @@ function editTask(event) {
                                         "with title: " + todoText.textContent + " <br> " +
                                         "with due date: " + todoDueDate + " <br> " + 
                                         "and priority: " + todoPriority + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
     }
 }
 
 // ******** This button is universal, closes the subtask entryform, subtask editform and maintask editform
-function CancelEditItem(event) {
-    renderFromTaskArray(taskArray);
+function CancelEditTask(event) {
+    renderTasksFromArray(taskArray);
 
     const currentDate = (new Date()).toString(); // message for activity
     activityArray.push("Task Edit or Sub task Addition Cancelled on " + currentDate + " <br> ");
-    updateActivity();
+    updateActivityInLocalStorage();
 
     edit = !edit;
 }
 
 // ******** This button saves if any edits are done on a task
-function saveItem(event) {
+function saveEditTask(event) {
     taskItem = event.target.parentNode.parentNode.parentNode; // to get the task id
     taskID = parseInt(taskItem.id);
 
@@ -317,14 +317,14 @@ function saveItem(event) {
         task.dueDate = dueDate;
         task.reminder = reminder;
         updateTasksInLocalStorage();
-        renderFromTaskArray(taskArray);
+        renderTasksFromArray(taskArray);
 
         const currentDate = (new Date()).toString();
         activityArray.push("Main Task Edited on " + currentDate + " <br> " +
                             "title changed now " + textAreaValue + " <br> " +
                             "due date change now " + dueDate + " <br> " + 
                             "priority change now " + priority + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
     }
     edit = !edit;
 }
@@ -348,20 +348,20 @@ function openAddSubTaskForm(event) {
                                         </div>
                                     </div>
                                     <div style="display:flex; justify-content:center; ">
-                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveSubTaskItem(event)">Save</button>
-                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditItem(event)">Cancel</button>
+                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="AddsubTask(event)">Save</button>
+                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
                                     </div>`;
         taskItem.appendChild(subTaskEntryForm);
 
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task was tried to be added under " + task.title + " on " + currentDate + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
         edit = !edit;
     }
 }
 
 // ******** This button submits and add the new SUB TASK in the ROOT TASK
-function saveSubTaskItem(event) {
+function AddsubTask(event) {
     taskItem = event.target.parentNode.parentNode.parentNode; // to get the ROOT TASK ID, I can make it nested i know
     taskID = parseInt(taskItem.id);
     const textAreaValue = document.querySelector(".edit-task-title").value;
@@ -378,11 +378,11 @@ function saveSubTaskItem(event) {
         }
         task.subtask[subTaskID]  = subtaskDetails;
         updateTasksInLocalStorage();
-        renderFromTaskArray(taskArray);
+        renderTasksFromArray(taskArray);
 
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task with title " + textAreaValue + "was added under " + task.title + " on " + currentDate + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
     }
 
     edit = !edit;
@@ -409,19 +409,19 @@ function editSubTask(event) {
                 </div>
             </div>
             <div style="display:flex; justify-content:center; ">
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditedSubTaskItem(event)">Save</button>
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditItem(event)">Cancel</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditSubTask(event)">Save</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
             </div>
         `;
 
         const currentDate = (new Date()).toString(); // for acitivity
         activityArray.push("Sub Task with title " + todoText.textContent + " under was open to edit on " + currentDate + " <br> ");
-        updateActivity();
+        updateActivityInLocalStorage();
     }
 }
 
 // ******** This button saves the edited SUB TASK
-function saveEditedSubTaskItem(event) {
+function saveEditSubTask(event) {
     taskItem = event.target.parentNode.parentNode.parentNode.parentNode.parentNode; // to get the ROOT TASK ID
     taskID = parseInt(taskItem.id);
     const textAreaValue = document.querySelector(".edit-task-title").value;
@@ -435,12 +435,12 @@ function saveEditedSubTaskItem(event) {
         subtask.subTaskTitle = textAreaValue;
         subtask.subTaskPriority = priority;
         updateTasksInLocalStorage();
-        renderFromTaskArray(taskArray);
+        renderTasksFromArray(taskArray);
         
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task under " + task.title + " was edited on " + currentDate + " <br> " +
                             "changed to " + subtask.subTaskTitle);
-        updateActivity();
+        updateActivityInLocalStorage();
     }
     edit = !edit;
 }
@@ -457,7 +457,7 @@ function deleteSubTask(event) {
 
     const currentDate = (new Date()).toString(); // for activity
     activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + " was deleted on " + currentDate + " <br> ");
-    updateActivity();
+    updateActivityInLocalStorage();
 
     task.subtask = task.subtask.filter(task => task.subTaskID !== subTaskID);
     updateTasksInLocalStorage();
@@ -495,7 +495,7 @@ function toggleSubTask(event) {
     }
     const currentDate = (new Date()).toString(); // for activity
     activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + status + " on " + currentDate + " <br> ");
-    updateActivity();
+    updateActivityInLocalStorage();
 }
 
 // ******** This seciton handles the sort by feature
@@ -530,7 +530,7 @@ sortBy.addEventListener('mouseup', function() {
         default:
             console.log("will never get here")
         }
-        renderFromTaskArray(tempArray);
+        renderTasksFromArray(tempArray);
     }
     sortClicked = true;
 });
@@ -562,12 +562,12 @@ function sortPriorityHighToLow(objA, objB){
 // ******** This seciton handles the backlog feature with help of expired due date
 const backLog = document.getElementById('showBackLogBtn');
 backLog.addEventListener('click', function(event) {
-    removeAllTask();
+    removeAllTaskFromDOM();
     taskArray.forEach(task => {
         taskID = Math.max(taskID, task.id);
         let taskDueDate = new Date(task.dueDate);
         let currentDate = new Date();
-        if(currentDate>taskDueDate) renderTaskList(task);
+        if(currentDate>taskDueDate) renderSingleTask(task);
     });
 });
 
@@ -627,7 +627,7 @@ filterForm.addEventListener('submit', (event) => {
             
         return (a && b && c && d); 
     });
-    renderFromTaskArray(tempArray);  // temporarily render
+    renderTasksFromArray(tempArray);  // temporarily render
     closeModal();
 });
 function handleCheckBoxesForFilter(className) {
@@ -663,7 +663,7 @@ function taskReminder() {
     reminderTask.innerHTML = `
                             <span class="close"></span>
                             <h2> REMINDER EVERY 1 MINUTE </h2>
-                            <h5> do not want to disturb every min</h5>
+                            <h5> do not want to disturb every sec</h5>
                             <h5 style="color:red">click anywhere other than modal to close</h5>`;
     taskArray.forEach(task => {
         if(task.reminder==="byminute"){
@@ -683,4 +683,47 @@ function taskReminder() {
         }
     });
 }
-const everyMin = setInterval(taskReminder, 60000);
+const everyMin = setInterval(taskReminder, 600000);
+
+
+
+const searchTextInput = document.getElementById('search-text');
+function handleInputEvent(event) {
+    const typedText = event.target.value;
+    let tempTaskArray = searchTaskArray(typedText);
+    console.log(tempTaskArray)
+    renderTasksFromArray(tempTaskArray);
+  }
+  
+  // Add the event listener to the text input
+searchTextInput.addEventListener('input', handleInputEvent);
+
+function searchTaskArray(searchText) {
+    searchText = searchText.toLowerCase();
+    console.log(searchText)
+    let tempArray = taskArray.filter((task) => {
+        console.log(task.title.toLowerCase())
+        if(task.title.toLowerCase().includes(searchText)) return true;
+        
+        let subtask = task.subtask;
+        let matchingSubTask = subtask.filter((subTask) => {
+            let mainString = subTask.subTaskTitle.toLowerCase();
+            if(mainString.includes(searchText))
+                return true;
+        });
+        if(matchingSubTask.length) return true;
+
+        let countTags = 0;
+        task.tags.forEach(element => {
+            let mainString = element.toLowerCase();
+            if(mainString.includes(searchText)) countTags++;
+        });
+        if(countTags) return true;
+    });
+    return tempArray;
+}
+
+const resetSearchButton = document.querySelector(".search-button");
+resetSearchButton.addEventListener("click", function(event) {
+    renderTasksFromArray(taskArray);
+});

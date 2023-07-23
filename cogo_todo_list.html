@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="styles.css">
 </head>
-<body onload="refreshAction()">
+<body onload="checkLocalStorageForData()">
     <div class="header">
         <div>
             <h2 style="margin:auto;">TO-DO LIST</h2>
@@ -84,12 +84,12 @@
         <div class="form-container-2">
             <!-- First 40%: Input Area -->
             <div class="input-area">
-              <input type="text" class="form-input-2" placeholder="Enter text here">
+              <input type="text" class="form-input-2" id="search-text" placeholder="Enter text here">
             </div>
         
             <!-- Second 20%: Search Button -->
             <div class="search-button">
-              <button class="search-button">Search</button>
+              <button class="search-button">Reset</button>
             </div>
         
             <!-- Third 20%: Dropdown Input for Single Select Radiobutton -->
