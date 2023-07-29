@@ -4,10 +4,10 @@
     <title>
         todo list by abhinandan
     </title>          
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet"> 
+    <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet">  -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body onload="checkLocalStorageForData()">
@@ -16,6 +16,7 @@
             <h2 style="margin:auto;">TO-DO LIST</h2>
         </div>
     </div>
+    
     <div class="main-container">  
         <div class="form-container-1">
             <!-- First Row: Input for Text Area -->
@@ -168,13 +169,11 @@
             </div>
         </div>
         <div class="activity-board"></div>
-        <div class="undone-task"></div>
-        <div class="done-task"></div>
+        <div class="undone-task"  id="container1"></div>
+        <div class="done-task"  id="container2"></div>
     </div>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/utils/Draggable.min.js"></script>
     <script src="script.js"></script>
+
     
 </body>
 </html>

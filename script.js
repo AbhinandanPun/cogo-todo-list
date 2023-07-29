@@ -2,9 +2,7 @@ let  unDoneTaskList = document.querySelector(".undone-task") // where incomplete
 let  doneTaskList = document.querySelector(".done-task") // where complete task are
 
 let priorityMap = new Map(); // priority ENUM
-priorityMap.set("high",3);
-priorityMap.set("medium",2);
-priorityMap.set("low",1);
+priorityMap.set("high",3); priorityMap.set("medium",2); priorityMap.set("low",1);
 
 let taskArray = []; 
 let activityArray = []; // all the activities
@@ -20,20 +18,28 @@ function checkLocalStorageForData() {
     }
     if(localStorage.getItem("activity") && localStorage.getItem("activity").length !== 2) {
         activityArray = JSON.parse(localStorage.getItem("activity"));
-        renderActivities(activityArray);
+        renderActivities();
     }
 }
 
 // **************** Render the Activities
-function renderActivities(activityArray) {
+function renderActivities() {
     const activityBoard = document.querySelector(".activity-board");
     let i = 1;
+    activityBoard.innerHTML = ``;
     activityArray.forEach(activity => {
         const activityEntry = document.createElement("div");
-        activityEntry.innerHTML = `<p>${(i)} ------ ${(activity)}</p>`;
+        activityEntry.innerHTML = `<p style="margin-top:1px; margin-bottom:1px;font-size:12px;">${(i)} ------ ${(activity)}</p>`;
         activityBoard.appendChild(activityEntry);
         i++;
     });
+}
+
+function addActivity(message) {
+    const currentDate = (new Date()).toString(); // message for activity
+    activityArray.push( currentDate + " <br> " + message );
+    updateActivityInLocalStorage();
+    renderActivities();
 }
 
 // **************** Update the activites in LOCAL STORAGE
@@ -69,6 +75,11 @@ function renderSingleTask(task) {
         const taskItem = document.createElement("div");
         taskItem.classList.add("task-item");
         taskItem.setAttribute("id", task.id);
+        taskItem.setAttribute("draggable", "true"); // Add draggable attribute
+        
+        taskItem.addEventListener("dragstart", dragStart); // Add dragstart event listener
+        taskItem.addEventListener("dragover", dragOver); // Add dragover event listener
+        taskItem.addEventListener("drop", drop); // Add drop event listener
         taskItem.innerHTML = `
                     <div class="task-details">
                         <div class="task-details-title">${(task.title)}</div>
@@ -79,11 +90,11 @@ function renderSingleTask(task) {
                         <div class="task-details-info task-details-reminder">Reminder: ${(task.reminder)}</div>
                     </div>
                     <div class="task-actions">
-                        <button class="action-button edit-button" onclick="editTask(event)">Edit</button>
-                        <button class="action-button"  onclick="toggleTask(event)">${(task.completed ? "Undone" : "Done")}</button>
-                        <button class="action-button delete-button"  onclick="deleteTask(event)">Delete</button>
+                        <button class="action-button edit-button" onclick="editTask(${task.id})">Edit</button>
+                        <button class="action-button" id="toggle" onclick="toggleTask(${task.id})">${(task.completed ? "Undone" : "Done")}</button>
+                        <button class="action-button delete-button"  onclick="deleteTask(${task.id})">Delete</button>
                     </div>
-                    <button class="add-subtask-button" onclick="openAddSubTaskForm(event)">Add Sub Task</button>
+                    <button class="add-subtask-button" onclick="openAddSubTaskForm(${task.id})">Add Sub Task</button>
                     <div class="undone-sub-task-list"></div>
                     <div class="done-sub-task-list"></div>
                 `;
@@ -112,9 +123,9 @@ function renderSingleSubTask(taskID, subTaskDetails) {
                     <div class="task-details-info task-details-priority">Priority: ${(subTaskDetails.subTaskPriority)}</div>
                 </div>
                 <div class="task-actions">
-                    <button onclick="editSubTask(event)">Edit</button>
-                    <button onclick="toggleSubTask(event)">${(subTaskDetails.completed ? "Undone" : "Done")}</button>
-                    <button onclick="deleteSubTask(event)">Delete</button>
+                    <button onclick="editSubTask(${taskID}, event)">Edit</button>
+                    <button onclick="toggleSubTask(${taskID}, ${subTaskDetails.subTaskID}, event)">${(subTaskDetails.completed ? "Undone" : "Done")}</button>
+                    <button onclick="deleteSubTask(${taskID}, ${subTaskDetails.subTaskID}, event)">Delete</button>
                 </div>
             `;
 
@@ -124,6 +135,24 @@ function renderSingleSubTask(taskID, subTaskDetails) {
     else    undonesubtasktasklist.appendChild(subtask);
 }
 
+
+function getDueDate(dueDateInput) {
+    const currentDate = new Date();
+    const phrases = [
+      { phrase: 'by tomorrow', offset: 1 },
+      { phrase: 'till next week', offset: 7 },
+      { phrase: 'in two weeks', offset: 14 },
+    ];
+    const matchedPhrase = phrases.find(({ phrase }) =>
+      dueDateInput.toLowerCase().includes(phrase)
+    );
+    if (matchedPhrase) {
+      currentDate.setDate(currentDate.getDate() + matchedPhrase.offset);
+      const dueDate = currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      return dueDate
+    } 
+    return "2023-12-31";
+  }
 
 // ******** This button adds new TASK into dom, taskarray and Localstorage
 const addTaskButton = document.querySelector(".add-button");
@@ -141,7 +170,7 @@ addTaskButton.addEventListener("click", function(event) {
     const priority = document.querySelector(".priority").value;
     const reminder = document.querySelector(".reminder").value;
     let dueDate = document.querySelector(".due-date").value;
-    if(dueDate=="") dueDate = "2023-12-31" // hardcoded till end of 2023, if duedate not given
+    if(dueDate=="") dueDate = getDueDate(textAreaValue.value) // hardcoded till end of 2023, if duedate not given
 
     if(textAreaValue.value!=="") {
         taskArray.push({
@@ -155,14 +184,9 @@ addTaskButton.addEventListener("click", function(event) {
             "reminder": reminder,
             "subtask": [],
         });
-
-        const currentDate = (new Date()).toString(); // message for activity
-        activityArray.push("New Task Added on " + currentDate + " <br> " +
-                            "with title: " + textAreaValue.value + " <br> " +
+        addActivity("New Task Added with title: " + textAreaValue.value + " <br> " +
                             "with due date: " + dueDate + " <br> " + 
                             "and priority: " + priority + " <br> ");
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
         updateTasksInLocalStorage();
         renderTasksFromArray(taskArray);
         textAreaValue.value = "";
@@ -170,28 +194,22 @@ addTaskButton.addEventListener("click", function(event) {
 });
 
 // ******** This button deletes the TASK
-function deleteTask(event) {
-    const taskItem = event.target.parentNode.parentNode;   // to get the id of the TASK  
-    const taskID = parseInt(taskItem.id);
-
-    const currentDate = (new Date()).toString(); // message for the activity
+function deleteTask(taskID) {
+    taskItem = document.getElementById(taskID);
     task = taskArray.find(task => task.id === taskID);
-    activityArray.push("Main Task with title " + task.title + " deleted on " + currentDate + " <br> ");
-    
-    updateActivityInLocalStorage();
-    renderActivities(activityArray);
 
     taskArray = taskArray.filter(task => task.id !== taskID);
     updateTasksInLocalStorage();
     if(taskItem.parentNode.classList[0]=="undone-task") unDoneTaskList.removeChild(taskItem);
     else    doneTaskList.removeChild(taskItem);
+    
+    addActivity("Main Task with title " + task.title + " deleted<br>");
 }
 
 // ******** This button toggles teh completion status of the TASK
-function toggleTask(event) {
-    const taskItem = event.target.parentNode.parentNode;  // to get the id of the TASK      
-    const taskID = parseInt(taskItem.id);
-
+function toggleTask(taskID) {  
+    taskItem = document.getElementById(taskID); 
+    button = taskItem.querySelector("#toggle");
     const task = taskArray.find(task => task.id === taskID);
     const completed = task.completed;
     task.completed = !task.completed;
@@ -200,28 +218,22 @@ function toggleTask(event) {
     let status = "";
     if(completed == false) {
         status = " completed";
+        button.innerHTML = "Undone";
         unDoneTaskList.removeChild(taskItem);
-        event.target.innerHTML = "Undone";
-        doneTaskList.appendChild(event.target.parentNode.parentNode);
+        doneTaskList.appendChild(button.parentNode.parentNode);
     }
     else {
         status = " toggled from complete to incomplete";
+        button.innerHTML = "Done";
         doneTaskList.removeChild(taskItem);
-        event.target.innerHTML = "Done";
-        unDoneTaskList.appendChild(event.target.parentNode.parentNode);
+        unDoneTaskList.appendChild(button.parentNode.parentNode);
     }
-
-    const currentDate = (new Date()).toString(); // message for the activity
-    activityArray.push("Main Task with title " + task.title + status + " on " + currentDate + " <br> ");
-    
-    updateActivityInLocalStorage();
-    renderActivities(activityArray);
+    addActivity("Main Task with title " + task.title + status + " toggled <br>");
 }
 
 // ******** This button opens a prefilled edit form for a TASK
-function editTask(event) {
-    taskItem = event.target.parentNode.parentNode;
-    taskContent = taskItem.querySelector('.task-details');
+function editTask(taskID) {
+    taskContent = (document.getElementById(taskID)).querySelector(".task-details");
     if(edit){
         edit = !edit;
         todoText = taskContent.querySelector('.task-details-title');
@@ -269,39 +281,24 @@ function editTask(event) {
             </div>
             <input type="date" class="edit-due-date" value="${(todoDueDate)}">
             <div style="display:flex; justify-content:center; ">
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditTask(event)">Save</button>
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditTask(${taskID})">Save</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask()">Cancel</button>
             </div>
         `;
-    
-        const currentDate = (new Date()).toString(); // message for the activity
-        activityArray.push("Main Task Edit Form Activated on : " + currentDate + " <br> " +
-                                        "with title: " + todoText.textContent + " <br> " +
-                                        "with due date: " + todoDueDate + " <br> " + 
-                                        "and priority: " + todoPriority + " <br> ");
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
+
+        addActivity("Main Task Edit Form Activated with title: " + todoText.textContent + " <br> " );
     }
 }
 
 // ******** This button is universal, closes the subtask entryform, subtask editform and maintask editform
-function CancelEditTask(event) {
+function CancelEditTask() {
     renderTasksFromArray(taskArray);
-
-    const currentDate = (new Date()).toString(); // message for activity
-    activityArray.push("Task Edit or Sub task Addition Cancelled on " + currentDate + " <br> ");
-    updateActivityInLocalStorage();
-    renderActivities(activityArray);
-
+    addActivity("Task Edit or Sub task Addition Cancelled");
     edit = !edit;
 }
 
 // ******** This button saves if any edits are done on a task
-function saveEditTask(event) {
-    taskItem = event.target.parentNode.parentNode.parentNode; // to get the task id
-    taskID = parseInt(taskItem.id);
-
+function saveEditTask(taskID) {
     const textAreaValue = document.querySelector(".edit-task-title").value;
     const checkboxes = document.querySelectorAll(".edit-checkbox-input");
     const selectedCheckboxes = [];
@@ -325,24 +322,17 @@ function saveEditTask(event) {
         task.reminder = reminder;
         updateTasksInLocalStorage();
         renderTasksFromArray(taskArray);
-
-        const currentDate = (new Date()).toString();
-        activityArray.push("Main Task Edited on " + currentDate + " <br> " +
-                            "title changed now " + textAreaValue + " <br> " +
+        addActivity("Main Task Edited title changed now " + textAreaValue + " <br> " +
                             "due date change now " + dueDate + " <br> " + 
                             "priority change now " + priority + " <br> ");
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
     }
     edit = !edit;
 }
 
 // ******** This button opens up a new form to add SUB TASK
-function openAddSubTaskForm(event) {
+function openAddSubTaskForm(taskID) {
     if(edit) {
-        const taskItem = event.target.parentNode; // to get the ROOT TASK ID
-        const taskID = parseInt(taskItem.id);
+        taskItem = document.getElementById(taskID);
         const task = taskArray.find(task => task.id === taskID);
         const subTaskEntryForm = document.createElement("div");
         subTaskEntryForm.innerHTML = `
@@ -357,24 +347,18 @@ function openAddSubTaskForm(event) {
                                         </div>
                                     </div>
                                     <div style="display:flex; justify-content:center; ">
-                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="AddsubTask(event)">Save</button>
-                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
+                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="AddsubTask(${taskID})">Save</button>
+                                        <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask()">Cancel</button>
                                     </div>`;
         taskItem.appendChild(subTaskEntryForm);
 
-        const currentDate = (new Date()).toString(); // for activity
-        activityArray.push("Sub Task was tried to be added under " + task.title + " on " + currentDate + " <br> ");
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
+        addActivity("Sub Task was tried to be added under " + task.title);
         edit = !edit;
     }
 }
 
 // ******** This button submits and add the new SUB TASK in the ROOT TASK
-function AddsubTask(event) {
-    taskItem = event.target.parentNode.parentNode.parentNode; // to get the ROOT TASK ID, I can make it nested i know
-    taskID = parseInt(taskItem.id);
+function AddsubTask(taskID) {
     const textAreaValue = document.querySelector(".edit-task-title").value;
     const priority = document.querySelector(".edit-priority").value;
 
@@ -391,22 +375,16 @@ function AddsubTask(event) {
         updateTasksInLocalStorage();
         renderTasksFromArray(taskArray);
 
-        const currentDate = (new Date()).toString(); // for activity
-        activityArray.push("Sub Task with title " + textAreaValue + "was added under " + task.title + " on " + currentDate + " <br> ");
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
+        addActivity("Sub Task with title " + textAreaValue + "was added under " + task.title);
     }
-
     edit = !edit;
 }
 
 // ******** This button opens a new form to edit the SUB TASK
-function editSubTask(event) {
+function editSubTask(taskID, event) {
     taskItem = event.target.parentNode.parentNode;
     taskContent = taskItem.querySelector('.task-details');
     if(edit){
-        edit = !edit;
         todoText = taskContent.querySelector('.task-details-title');
         todoPriority = taskContent.querySelector('.task-details-priority').textContent.slice(10);
 
@@ -422,23 +400,18 @@ function editSubTask(event) {
                 </div>
             </div>
             <div style="display:flex; justify-content:center; ">
-                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditSubTask(event)">Save</button>
+                <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="saveEditSubTask(${taskID}, event)">Save</button>
                 <button class="task-button" style="background-color:#e09f3e; margin-left:10px; margin-right:10px;" onclick="CancelEditTask(event)">Cancel</button>
             </div>
         `;
 
-        const currentDate = (new Date()).toString(); // for acitivity
-        activityArray.push("Sub Task with title " + todoText.textContent + " under was open to edit on " + currentDate + " <br> ");
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
+        addActivity("Sub Task with title " + todoText.textContent + " under was open to edit");
+        edit = !edit;
     }
 }
 
 // ******** This button saves the edited SUB TASK
-function saveEditSubTask(event) {
-    taskItem = event.target.parentNode.parentNode.parentNode.parentNode.parentNode; // to get the ROOT TASK ID
-    taskID = parseInt(taskItem.id);
+function saveEditSubTask(taskID, event) {
     const textAreaValue = document.querySelector(".edit-task-title").value;
     const priority = document.querySelector(".edit-priority").value;
     
@@ -452,31 +425,19 @@ function saveEditSubTask(event) {
         updateTasksInLocalStorage();
         renderTasksFromArray(taskArray);
         
-        const currentDate = (new Date()).toString(); // for activity
-        activityArray.push("Sub Task under " + task.title + " was edited on " + currentDate + " <br> " +
-                            "changed to " + subtask.subTaskTitle);
-        
-        updateActivityInLocalStorage();
-        renderActivities(activityArray);
+        addActivity("Sub Task under " + task.title + " was changed to " + subtask.subTaskTitle);
     }
     edit = !edit;
 }
 
 // ******** This button deletes the SUB TASK
-function deleteSubTask(event) {
-    const taskItem = event.target.parentNode.parentNode.parentNode.parentNode;  // to get the ROOT TASK ID    
-    const taskID = parseInt(taskItem.id);
+function deleteSubTask(taskID, subTaskID, event) {
     let task = taskArray.find(task => task.id === taskID);
 
-    const subTaskItem = event.target.parentNode.parentNode;  // to get the SUB TASK ID 
-    const subTaskID = parseInt(subTaskItem.id);
+    const subTaskItem = event.target.parentNode.parentNode; 
     let subtask = task.subtask.find(task => task.subTaskID === subTaskID);
 
-    const currentDate = (new Date()).toString(); // for activity
-    activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + " was deleted on " + currentDate + " <br> ");
-    
-    updateActivityInLocalStorage();
-    renderActivities(activityArray);
+    activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + " was deleted");
 
     task.subtask = task.subtask.filter(task => task.subTaskID !== subTaskID);
     updateTasksInLocalStorage();
@@ -484,13 +445,11 @@ function deleteSubTask(event) {
 }
 
 // ******** This button toggles the completion status of the SUB TASK
-function toggleSubTask(event) {
-    const taskItem = event.target.parentNode.parentNode.parentNode.parentNode;   // to get the ROOT TASK ID          
-    const taskID = parseInt(taskItem.id);
+function toggleSubTask(taskID, subTaskID, event) {
+    let taskItem = document.getElementById(taskID);
     let task = taskArray.find(task => task.id === taskID);
 
     const subTaskItem = event.target.parentNode.parentNode; // to get the SUB TASK ID 
-    const subTaskID = parseInt(subTaskItem.id);
     let subtask = task.subtask.find(task => task.subTaskID === subTaskID);
 
     const completed = subtask.completed;
@@ -512,11 +471,8 @@ function toggleSubTask(event) {
         event.target.innerHTML = "Done";
         undonesubtasktasklist.appendChild(subTaskItem);
     }
-    const currentDate = (new Date()).toString(); // for activity
-    activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + status + " on " + currentDate + " <br> ");
-    
-    updateActivityInLocalStorage();
-    renderActivities(activityArray);
+
+    activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + status);
 }
 
 // ******** This seciton handles the sort by feature
@@ -712,7 +668,6 @@ const searchTextInput = document.getElementById('search-text');
 function handleInputEvent(event) {
     const typedText = event.target.value;
     let tempTaskArray = searchTaskArray(typedText);
-    console.log(tempTaskArray)
     renderTasksFromArray(tempTaskArray);
   }
   
@@ -748,3 +703,39 @@ const resetSearchButton = document.querySelector(".search-button");
 resetSearchButton.addEventListener("click", function(event) {
     renderTasksFromArray(taskArray);
 });
+
+// *********************  This section drag and drop
+let draggingTask = null;
+function dragStart(event) {
+    draggingTask = event.target;
+}
+function dragOver(event) {
+  event.preventDefault();
+}
+function drop(event) {
+    const container1 = document.getElementById("container1");
+    const container2 = document.getElementById("container2");
+    const targetTask = event.target;
+    const targetContainer = targetTask.parentNode.classList[0];
+    const draggingTaskContainer = draggingTask.parentNode.classList[0];
+    if (
+        draggingTask &&
+      targetTask.classList.contains("task-item") &&
+      (container1.contains(targetTask) || container2.contains(targetTask)) 
+    ) {
+       const container = (container1.contains(targetTask)) ? container1 : container2; 
+      const tasks = container.getElementsByClassName("task-item");
+      const targetIndex = Array.from(tasks).indexOf(targetTask);
+      const draggingIndex = Array.from(tasks).indexOf(draggingTask);
+  
+      if (draggingIndex < targetIndex) {
+        container.insertBefore(draggingTask, targetTask.nextSibling);
+      } else {
+        container.insertBefore(draggingTask, targetTask);
+      }
+      if(targetContainer !== draggingTaskContainer) toggleTask(parseInt(draggingTask.id));
+    }
+    draggingTask = null;
+  }
+  
+  
