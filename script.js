@@ -162,7 +162,7 @@ addTaskButton.addEventListener("click", function(event) {
                             "with due date: " + dueDate + " <br> " + 
                             "and priority: " + priority + " <br> ");
         updateActivityInLocalStorage();
-
+        renderActivities(activityArray);
         updateTasksInLocalStorage();
         renderTasksFromArray(taskArray);
         textAreaValue.value = "";
@@ -177,7 +177,9 @@ function deleteTask(event) {
     const currentDate = (new Date()).toString(); // message for the activity
     task = taskArray.find(task => task.id === taskID);
     activityArray.push("Main Task with title " + task.title + " deleted on " + currentDate + " <br> ");
+    
     updateActivityInLocalStorage();
+    renderActivities(activityArray);
 
     taskArray = taskArray.filter(task => task.id !== taskID);
     updateTasksInLocalStorage();
@@ -211,7 +213,9 @@ function toggleTask(event) {
 
     const currentDate = (new Date()).toString(); // message for the activity
     activityArray.push("Main Task with title " + task.title + status + " on " + currentDate + " <br> ");
+    
     updateActivityInLocalStorage();
+    renderActivities(activityArray);
 }
 
 // ******** This button opens a prefilled edit form for a TASK
@@ -275,7 +279,9 @@ function editTask(event) {
                                         "with title: " + todoText.textContent + " <br> " +
                                         "with due date: " + todoDueDate + " <br> " + 
                                         "and priority: " + todoPriority + " <br> ");
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
     }
 }
 
@@ -286,6 +292,7 @@ function CancelEditTask(event) {
     const currentDate = (new Date()).toString(); // message for activity
     activityArray.push("Task Edit or Sub task Addition Cancelled on " + currentDate + " <br> ");
     updateActivityInLocalStorage();
+    renderActivities(activityArray);
 
     edit = !edit;
 }
@@ -324,7 +331,9 @@ function saveEditTask(event) {
                             "title changed now " + textAreaValue + " <br> " +
                             "due date change now " + dueDate + " <br> " + 
                             "priority change now " + priority + " <br> ");
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
     }
     edit = !edit;
 }
@@ -355,7 +364,9 @@ function openAddSubTaskForm(event) {
 
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task was tried to be added under " + task.title + " on " + currentDate + " <br> ");
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
         edit = !edit;
     }
 }
@@ -382,7 +393,9 @@ function AddsubTask(event) {
 
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task with title " + textAreaValue + "was added under " + task.title + " on " + currentDate + " <br> ");
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
     }
 
     edit = !edit;
@@ -416,7 +429,9 @@ function editSubTask(event) {
 
         const currentDate = (new Date()).toString(); // for acitivity
         activityArray.push("Sub Task with title " + todoText.textContent + " under was open to edit on " + currentDate + " <br> ");
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
     }
 }
 
@@ -440,7 +455,9 @@ function saveEditSubTask(event) {
         const currentDate = (new Date()).toString(); // for activity
         activityArray.push("Sub Task under " + task.title + " was edited on " + currentDate + " <br> " +
                             "changed to " + subtask.subTaskTitle);
+        
         updateActivityInLocalStorage();
+        renderActivities(activityArray);
     }
     edit = !edit;
 }
@@ -457,7 +474,9 @@ function deleteSubTask(event) {
 
     const currentDate = (new Date()).toString(); // for activity
     activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + " was deleted on " + currentDate + " <br> ");
+    
     updateActivityInLocalStorage();
+    renderActivities(activityArray);
 
     task.subtask = task.subtask.filter(task => task.subTaskID !== subTaskID);
     updateTasksInLocalStorage();
@@ -495,7 +514,9 @@ function toggleSubTask(event) {
     }
     const currentDate = (new Date()).toString(); // for activity
     activityArray.push("Sub Task with title " + subtask.subTaskTitle + " under " + task.title + status + " on " + currentDate + " <br> ");
+    
     updateActivityInLocalStorage();
+    renderActivities(activityArray);
 }
 
 // ******** This seciton handles the sort by feature
