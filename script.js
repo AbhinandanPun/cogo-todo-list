@@ -164,7 +164,7 @@ addTaskButton.addEventListener("click", function(event) {
         updateActivityInLocalStorage();
 
         updateTasksInLocalStorage();
-        renderTasksFromArray(taskArray)
+        renderTasksFromArray(taskArray);
         textAreaValue.value = "";
     }
 });
@@ -658,14 +658,15 @@ window.addEventListener('click', (event) => {
 
 const reminderTask = document.querySelector('.task-to-reminded');
 function taskReminder() {    
-    openReminderModal();
-    reminderTask.innerHTML = `
-                            <span class="close"></span>
-                            <h2> REMINDER EVERY 1 MINUTE </h2>
-                            <h5> do not want to disturb every sec</h5>
-                            <h5 style="color:red">click anywhere other than modal to close</h5>`;
     taskArray.forEach(task => {
+        
         if(task.reminder==="byminute"){
+            openReminderModal();
+            reminderTask.innerHTML = `
+                                    <span class="close"></span>
+                                    <h2> REMINDER EVERY 1 MINUTE </h2>
+                                    <h5> do not want to disturb every sec</h5>
+                                    <h5 style="color:   red">click anywhere other than modal to close</h5>`;
             const taskItem = document.createElement("div");
             taskItem.classList.add("task-item");
             taskItem.setAttribute("id", task.id);
